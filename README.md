@@ -53,28 +53,30 @@ SOA915/
 
 ```bash
 minikube start --driver=docker
+```
 
 2. Install Prometheus Operator via Helm
-
+```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
-
+````
 3. Build Docker Images
-
+```bash
 docker build -t user-service:latest ./user_service
 docker build -t appointment-service:latest ./appointment_service
 docker build -t billing-service:latest ./billing_service
 docker build -t notification-service:latest ./notification_service
-
+```
 4. Apply Kubernetes Manifests
-
+```bash
 kubectl apply -f k8s/
-
+```
 5. Access Prometheus & Grafana
-
+```bash
 kubectl port-forward svc/prometheus-operated -n monitoring 9090:80
 kubectl port-forward svc/grafana -n monitoring 3000:80
+```
 
     Prometheus: http://localhost:9090
 
@@ -87,10 +89,10 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 6. Check Services
 
 Test locally:
-
+```bash
 kubectl port-forward svc/user-service 8000:8000
 curl http://localhost:8000/metrics
-
+```
 Repeat for other services on their ports:
 8001 (appointment), 8002 (billing), 8003 (notification)
 
