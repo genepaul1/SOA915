@@ -16,9 +16,10 @@ This project demonstrates a microservices architecture with **Prometheus** and *
 - kubectl
 - Helm
 
----
+
 
 ## 📁 Project Structure
+```
 
 SOA915/
 │
@@ -45,7 +46,7 @@ SOA915/
 └── README.md
 
 
----
+```
 
 ## ⚙️ Setup Instructions
 
