@@ -2,7 +2,7 @@
 
 This project demonstrates a microservices architecture with **Prometheus** and **Grafana** monitoring in Kubernetes using **Minikube**. It includes the following services:
 
-- `user-service` (substitute for patient service)
+- `user-service`
 - `appointment-service`
 - `billing-service`
 - `notification-service`
