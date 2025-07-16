@@ -1,50 +1,53 @@
 # SOA915 - Microservices Monitoring with Prometheus & Grafana
 
-This project demonstrates a microservices architecture with **Prometheus** and **Grafana** monitoring in Kubernetes using **Minikube**. It includes the following services:
+This project demonstrates a microservices architecture using Kubernetes, FastAPI, Flask, Prometheus, and Grafana. It consists of four core microservices deployed on a local Kubernetes cluster using Minikube.
 
-- `user-service`
-- `appointment-service`
-- `billing-service`
-- `notification-service`
+## 📦 Microservices
+
+| Service Name           | Framework | Description                                   | Exposes Metrics |
+|------------------------|-----------|-----------------------------------------------|-----------------|
+| `user-service`         | FastAPI   | Handles user registration                     | ✅              |
+| `appointment-service`  | Flask     | Books appointments and triggers other services| ✅              |
+| `billing-service`      | FastAPI   | Simulates billing requests                    | ✅              |
+| `notification-service` | FastAPI   | Simulates user notifications                  | ✅              |
+
+### 🔄 Service Interactions
+
+- `appointment-service` calls:
+  - `billing-service` to simulate charging the user
+  - `notification-service` to simulate sending a notification
 
 ---
 
 ## 🚀 Prerequisites
 
-- Docker
-- Minikube
-- kubectl
-- Helm
+- [Minikube](https://minikube.sigs.k8s.io/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Helm](https://helm.sh/)
+- Docker installed and configured
 
 
 
 ## 📁 Project Structure
 ```
 
-SOA915/
-│
-├── user_service/
-│ └── main.py
-│
+soa915/
 ├── appointment_service/
-│ └── main.py
-│
+│   └── main.py
 ├── billing_service/
-│ └── main.py
-│
+│   └── main.py
 ├── notification_service/
-│ └── main.py
-│
+│   └── main.py
+├── user_service/
+│   └── main.py
 ├── k8s/
-│ ├── user-deployment.yaml
-│ ├── appointment-deployment.yaml
-│ ├── billing-deployment.yaml
-│ ├── notification-deployment.yaml
-│ ├── user-service-monitor.yaml
-│ ├── ...
-│
+│   ├── user-deployment.yaml
+│   ├── appointment-deployment.yaml
+│   ├── billing-deployment.yaml
+│   ├── notification-deployment.yaml
+│   ├── *.service.yaml
+│   └── *.service-monitor.yaml
 └── README.md
-
 
 ```
 
@@ -56,24 +59,32 @@ SOA915/
 minikube start --driver=docker
 ```
 
-2. Install Prometheus Operator via Helm
+2. Add Prometheus Operator and Grafana via Helm
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
 ````
-3. Build Docker Images
+
+3. Install Prometheus and Grafana
+```bash
+helm install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace
+helm install grafana grafana/grafana --namespace monitoring
+```
+
+4. Build Docker Images
 ```bash
 docker build -t user-service:latest ./user_service
 docker build -t appointment-service:latest ./appointment_service
 docker build -t billing-service:latest ./billing_service
 docker build -t notification-service:latest ./notification_service
 ```
-4. Apply Kubernetes Manifests
+5. Apply Kubernetes Manifests
 ```bash
 kubectl apply -f k8s/
 ```
-5. Access Prometheus & Grafana
+6. Access Prometheus & Grafana
 ```bash
 kubectl port-forward svc/prometheus-operated -n monitoring 9090:80
 kubectl port-forward svc/grafana -n monitoring 3000:80
@@ -87,7 +98,7 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 
         Password: soa915
 
-6. Check Services
+7. Check Services
 
 Test locally:
 ```bash
@@ -97,6 +108,15 @@ curl http://localhost:8000/metrics
 Repeat for other services on their ports:
 8001 (appointment), 8002 (billing), 8003 (notification)
 
+Booking Interactions:
+```bash
+kubectl port-forward svc/appointment-service 8001:8001
+curl -X POST http://localhost:8001/book -H "Content-Type: application/json" -d '{"name": "John"}'
+```
+This call:
+    Increments the appointment counter
+    Triggers both billing and notification services
+    
 📊 Dashboards
 
 In Grafana:
