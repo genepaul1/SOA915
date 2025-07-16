@@ -115,6 +115,7 @@ curl -X POST http://localhost:8001/book -H "Content-Type: application/json" -d '
 ```
 This call:
     Increments the appointment counter
+    
     Triggers both billing and notification services
     
 📊 Dashboards
