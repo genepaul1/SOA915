@@ -11,6 +11,13 @@ def root():
     NOTIFICATION_SENT.inc()
     return {"message": "Notification Service is running"}
 
+@app.post("/notify")
+async def notify(request: Request):
+    data = await request.json()
+    username = data.get("username", "Unknown")
+    NOTIFICATION_REQUESTS.inc()
+    return {"message": f"User '{username}' notified successfully"}
+
 @app.get("/metrics")
 def metrics():
     return Response(generate_latest(), media_type="text/plain")

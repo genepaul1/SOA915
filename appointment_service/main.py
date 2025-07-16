@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from prometheus_client import Counter, generate_latest
+import requests
 
 app = Flask(__name__)
 appointments = []
@@ -16,8 +17,22 @@ def book():
     name = data.get('name')
     if not name:
         return {"error": "Name is required"}, 400
+
     appointments.append({"name": name})
     APPOINTMENT_COUNTER.inc()
+
+    # Call billing-service
+    try:
+        requests.get("http://billing-service:8002/")
+    except Exception as e:
+        print("Billing service failed:", e)
+
+    # Call notification-service
+    try:
+        requests.get("http://notification-service:8003/")
+    except Exception as e:
+        print("Notification service failed:", e)
+
     return {"message": f"Appointment booked for {name}"}
 
 @app.route('/metrics')
