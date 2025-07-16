@@ -114,6 +114,7 @@ kubectl port-forward svc/appointment-service 8001:8001
 curl -X POST http://localhost:8001/book -H "Content-Type: application/json" -d '{"name": "John"}'
 ```
 This call:
+
     Increments the appointment counter
     
     Triggers both billing and notification services
