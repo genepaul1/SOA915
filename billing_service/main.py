@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from prometheus_client import Counter, generate_latest
 from fastapi.responses import Response
 

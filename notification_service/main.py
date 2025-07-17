@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from prometheus_client import Counter, generate_latest
 from fastapi.responses import Response
 
@@ -15,7 +15,7 @@ def root():
 async def notify(request: Request):
     data = await request.json()
     username = data.get("username", "Unknown")
-    NOTIFICATION_REQUESTS.inc()
+    NOTIFICATION_SENT.inc()
     return {"message": f"User '{username}' notified successfully"}
 
 @app.get("/metrics")
