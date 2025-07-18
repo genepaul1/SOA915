@@ -86,7 +86,7 @@ kubectl apply -f k8s/
 ```
 6. Access Prometheus & Grafana
 ```bash
-kubectl port-forward svc/prometheus-operated -n monitoring 9090:80
+kubectl port-forward svc/prometheus-server -n monitoring 9090:80
 kubectl port-forward svc/grafana -n monitoring 3000:80
 ```
 
