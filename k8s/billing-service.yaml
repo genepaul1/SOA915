@@ -11,8 +11,10 @@ metadata:
 spec:
   selector:
     app: billing-service
+  type: NodePort
   ports:
     - name: http
       protocol: TCP
       port: 8002
       targetPort: 8002
+    
