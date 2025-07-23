@@ -75,6 +75,7 @@ helm install grafana grafana/grafana --namespace monitoring
 
 4. Build Docker Images
 ```bash
+eval $(minikube docker-env)
 docker build -t user-service:latest ./user_service
 docker build -t appointment-service:latest ./appointment_service
 docker build -t billing-service:latest ./billing_service
