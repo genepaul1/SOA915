@@ -5,7 +5,22 @@ services:
     build: ./user_service
     ports:
       - "8000:8000"
+
+  billing_service:
+    build: ./billing_service
+    ports:
+      - "8002:8002"
+
+  notification_service:
+    build: ./notification_service
+    ports:
+      - "8003:8003"
+
   appointment_service:
     build: ./appointment_service
     ports:
       - "8001:8001"
+    environment:
+      - BILLING_SERVICE_URL=http://billing_service:8002
+      - NOTIFICATION_SERVICE_URL=http://notification_service:8003
+

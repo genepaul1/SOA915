@@ -9,6 +9,7 @@ metadata:
     prometheus.io/path: /metrics
     prometheus.io/port: "8001"
 spec:
+  type: NodePort
   selector:
     app: appointment-service
   ports:
