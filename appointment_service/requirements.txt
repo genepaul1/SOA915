@@ -2,3 +2,4 @@ flask
 prometheus_client
 requests
 flask-cors
+pytest
