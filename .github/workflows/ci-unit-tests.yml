@@ -36,8 +36,7 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: |
           python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
-          pytest -m pytest tests/unit
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install -r requirements.txt
+          ./venv/bin/pip install pytest
+          ./venv/bin/python -m pytest tests/unit
