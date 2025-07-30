@@ -4,3 +4,4 @@ uvicorn
 prometheus_client
 requests
 pytest
+httpx
