@@ -1,6 +1,6 @@
 # SOA915 - Microservices Monitoring with Prometheus & Grafana
 
-This project demonstrates a microservices architecture using Kubernetes, FastAPI, Flask, Prometheus, and Grafana. It consists of four core microservices deployed on a local Kubernetes cluster using Minikube.
+This repository contains a microservices architecture project built with Python (Flask/FastAPI), Docker, and Kubernetes (Minikube). It demonstrates service orchestration, monitoring with Prometheus and Grafana, and CI/CD integration using GitHub Actions.
 
 ## 📦 Microservices
 
@@ -25,41 +25,91 @@ This project demonstrates a microservices architecture using Kubernetes, FastAPI
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Helm](https://helm.sh/)
 - Docker installed and configured
-
+- Prometheus & Grafana – Monitoring and visualization
+- GitHub Actions – CI pipeline for unit tests
+- Unit tests with `pytest`
+- Inter-service communication via REST APIs
 
 
 ## 📁 Project Structure
 ```
 
-soa915/
+SOA915/
+│
+├── .github/workflows/ 
+│ └── ci-unit-tests.yml
+│
 ├── appointment_service/
-│   └── main.py
+│ ├── Dockerfile
+│ ├── main.py
+│ ├── requirements.txt
+│ ├── appointments.db
+│ ├── tests/
+│ │ └── unit/
+│ │ └── test_appointment_unit.py
+│ │ └── integration/
+│ │ └── test_appointment_service.py
+│
 ├── billing_service/
-│   └── main.py
-├── notification_service/
-│   └── main.py
+│ ├── Dockerfile
+│ ├── main.py
+│ ├── requirements.txt
+│ ├── tests/
+│ │ └── unit/
+│ │ └── test_billing_service.py
+│ │ └── integration/
+│ │ └── test_billing_service.py
+│
 ├── user_service/
-│   └── main.py
+│ ├── Dockerfile
+│ ├── main.py
+│ ├── requirements.txt
+│ ├── tests/
+│ │ └── unit/
+│ │ └── test_user_unit.py
+│ │ └── integration/
+│ │ └── test_user_service.py
+│
+├── notification_service/
+│ ├── Dockerfile
+│ ├── main.py
+│ ├── requirements.txt
+│ ├── tests/
+│ │ └── unit/
+│ │ └── test_notification_unit.py
+│ │ └── integration/
+│ │ └── test_notification_service.py\
+│
 ├── k8s/
 │   ├── user-deployment.yaml
 │   ├── appointment-deployment.yaml
+│   ├── user-service-monitor.yaml
+│   ├── appointment-service-monitor.yaml
+│   ├── appointment-service.yaml
 │   ├── billing-deployment.yaml
+│   ├── billing-service-monitor.yaml
+│   ├── billing-service.yaml
+│   ├── user-service.yaml
+│   ├── notification-service-monitor.yaml
 │   ├── notification-deployment.yaml
-│   ├── *.service.yaml
-│   └── *.service-monitor.yaml
-└── README.md
+│   └── hpa.yaml
+│
+├── frontend/
+│ └── index.html
+│ 
+├── README.md
 
 ```
 
 ## ⚙️ Setup Instructions
 
-### 1. Start Minikube
+### Start Minikube
 
 ```bash
 minikube start --driver=docker
 ```
 
-2. Add Prometheus Operator and Grafana via Helm
+Add Prometheus Operator and Grafana via Helm
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -67,7 +117,7 @@ helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
 ````
 
-3. Install Prometheus and Grafana
+Install Prometheus and Grafana
 ```bash
 helm install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace
 helm install grafana grafana/grafana --namespace monitoring
@@ -81,11 +131,13 @@ docker build -t appointment-service:latest ./appointment_service
 docker build -t billing-service:latest ./billing_service
 docker build -t notification-service:latest ./notification_service
 ```
-5. Apply Kubernetes Manifests
+
+Apply Kubernetes Manifests
 ```bash
 kubectl apply -f k8s/
 ```
-6. Access Prometheus & Grafana
+
+Access Prometheus & Grafana
 ```bash
 kubectl port-forward svc/prometheus-server -n monitoring 9090:80
 kubectl port-forward svc/grafana -n monitoring 3000:80
@@ -99,27 +151,93 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 
         Password: soa915
 
-7. Check Services
+Check Services
 
-Test locally:
+## 🧪 Local Unit Testing
+
+Each microservice has a `tests/unit` folder with basic tests using `pytest`.
+
+### ✅ How to Run Tests Locally
+
+1. Navigate to the specific microservice folder:
+
 ```bash
-kubectl port-forward svc/user-service 8000:8000
-curl http://localhost:8000/metrics
-```
+cd appointment_service  # or user_service, billing_service, notification_service
 Repeat for other services on their ports:
 8001 (appointment), 8002 (billing), 8003 (notification)
+```
 
-Booking Interactions:
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # Use `venv\Scripts\activate` on Windows
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+pip install pytest
+```
+
+4. Run tests:
+```bash
+pytest tests/unit
+```
+
+
+Booking Interactions (manual using curl and specific microservice port (8000, 8001, 8002, 8003):
 ```bash
 kubectl port-forward svc/appointment-service 8001:8001
 curl -X POST http://localhost:8001/book -H "Content-Type: application/json" -d '{"name": "John"}'
 ```
+
 This call:
 
     Increments the appointment counter
     
     Triggers both billing and notification services
     
+
+    
+### Sample CI Step (from `.github/workflows/ci-unit-tests.yml`)
+
+```yaml
+- name: Run unit tests for ${{ matrix.service }}
+   working-directory: ${{ matrix.service }}
+   run: |
+   python -m venv venv
+  ./venv/bin/pip install --upgrade pip
+  ./venv/bin/pip install -r requirements.txt
+  ./venv/bin/pip install pytest
+  ./venv/bin/python -m pytest tests/unit
+
+```
+
+🌐 Frontend Usage
+
+The frontend is a simple HTML page (index.html) that interacts with the appointment_service.
+How to Use
+
+1. Start appointment_service locally or access it via its exposed NodePort (e.g. http://192.168.49.2:30002).
+
+2. Open index.html in your browser (double-click or use a local web server):
+   
+``` bash
+# Optional: use a simple Python server
+python3 -m http.server 8080
+```
+3. Fill out the appointment form and click Submit.
+
+  This will send a POST request to the /book endpoint.
+  
+  On success, it triggers downstream requests to billing_service and notification_service.
+
+4. Confirm results in:
+
+  The UI (success or error message).
+
+  our terminal logs or Prometheus metrics.
+
 📊 Dashboards
 
 In Grafana:
@@ -127,8 +245,26 @@ In Grafana:
     Add Prometheus as a data source (http://prometheus-operated.monitoring.svc:9090)
 
     Import dashboards (or create your own)
+    
+    Grafana dashboards visualize key metrics like:
 
-    Visualize metrics like request counters from each service
+    - App requests count
+
+    - Request duration
+
+    - Service health status
+
+🧰 Microservices Endpoints Summary
+
+| Service               | Local Port | NodePort | Health Check | Metrics    |
+| --------------------- | ---------- | -------- | ------------ | ---------- |
+| appointment\_service  | `8001`     | `30002`  | `/health`    | `/metrics` |
+| billing\_service      | `8002`     | `31837`  | `/health`    | `/metrics` |
+| notification\_service | `8003`     | `30628`  | `/health`    | `/metrics` |
+| user\_service         | `8000`     | `32680`  | `/health`    | `/metrics` |
+
+
+
 
 ✅ Status
 
@@ -137,3 +273,7 @@ Prometheus monitors all 4 services
 Grafana is running and visualizing metrics
 
 All services expose /metrics and increment Prometheus counters
+
+Service interactions are working and frontend is functioning as expected
+
+CI Workflow is successfully working
