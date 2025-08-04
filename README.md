@@ -178,11 +178,13 @@ source venv/bin/activate  # Use `venv\Scripts\activate` on Windows
 ```bash
 pip install -r requirements.txt
 pip install pytest
+
 ```
 
 4. Run tests:
 ```bash
 pytest tests/unit
+
 ```
 
 
@@ -229,6 +231,7 @@ How to Use
 ``` bash
 # Optional: use a simple Python server
 python3 -m http.server 8080
+
 ```
 
 4. Fill out the appointment form and click Submit.
@@ -287,14 +290,34 @@ Horizontal Pod Autoscalers (HPAs) are deployed per microservice:
 | user\_service         | `8000`     | `32680`  | `/health`    | `/metrics` |
 
 
-✅ Status
 
-Prometheus monitors all 4 services
+Troubleshooting
 
-Grafana is running and visualizing metrics
+If you encounter issues, check the logs:
+``` bash
+  kubectl logs <pod-name>
+``` 
+  Or describe the deployment:
+``` bash
+  kubectl describe deployment <deployment-name>
+```
 
-All services expose /metrics and increment Prometheus counters
+---
+Contributing:
 
-Service interactions are working and frontend is functioning as expected
+Contributions are welcome! Please feel free to submit a pull request or open an issue if you have suggestions or improvements.
 
-CI Workflow is successfully working
+
+---
+
+Team Members:
+
+Gene Paul Dizon
+
+Jae Hun Yang
+
+Ashika Sapkota
+
+Meet Sandipkumar Thakkar
+
+
