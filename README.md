@@ -213,7 +213,7 @@ In the repository, run this yaml file to automatically test the 4 microservices
   ./venv/bin/python -m pytest tests/unit
 
 ```
-In the repository, run this yaml file to automatically test the 4 microservices
+
 
 🌐 Frontend Usage
 
