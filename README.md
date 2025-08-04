@@ -151,8 +151,6 @@ kubectl port-forward svc/grafana -n monitoring 3000:80
 
         Password: soa915
 
-Check Services
-
 ## 🧪 Local Unit Testing
 
 Each microservice has a `tests/unit` folder with basic tests using `pytest`.
@@ -163,8 +161,11 @@ Each microservice has a `tests/unit` folder with basic tests using `pytest`.
 
 ```bash
 cd appointment_service  # or user_service, billing_service, notification_service
+```
+
 Repeat for other services on their ports:
-8001 (appointment), 8002 (billing), 8003 (notification)
+```bash
+8000 (user), 8001 (appointment), 8002 (billing), 8003 (notification)
 ```
 
 2. Create and activate a virtual environment:
@@ -185,7 +186,7 @@ pytest tests/unit
 ```
 
 
-Booking Interactions (manual using curl and specific microservice port (8000, 8001, 8002, 8003):
+Booking Interactions (manually using curl and specific microservice port):
 ```bash
 kubectl port-forward svc/appointment-service 8001:8001
 curl -X POST http://localhost:8001/book -H "Content-Type: application/json" -d '{"name": "John"}'
@@ -200,7 +201,7 @@ This call:
 
     
 ### Sample CI Step (from `.github/workflows/ci-unit-tests.yml`)
-
+In the repository, run this yaml file to automatically test the 4 microservices
 ```yaml
 - name: Run unit tests for ${{ matrix.service }}
    working-directory: ${{ matrix.service }}
@@ -212,31 +213,43 @@ This call:
   ./venv/bin/python -m pytest tests/unit
 
 ```
+In the repository, run this yaml file to automatically test the 4 microservices
 
 🌐 Frontend Usage
 
-The frontend is a simple HTML page (index.html) that interacts with the appointment_service.
+The frontend is a simple HTML page (index.html) that interacts with the microservices we've created in the backend.
 How to Use
 
-1. Start appointment_service locally or access it via its exposed NodePort (e.g. http://192.168.49.2:30002).
+1. Start all microservices locally.
 
-2. Open index.html in your browser (double-click or use a local web server):
+2. Go to frontend folder
+  
+3. Open index.html in your browser (double-click or use a local web server):
    
 ``` bash
 # Optional: use a simple Python server
 python3 -m http.server 8080
 ```
-3. Fill out the appointment form and click Submit.
+
+4. Fill out the appointment form and click Submit.
 
   This will send a POST request to the /book endpoint.
   
   On success, it triggers downstream requests to billing_service and notification_service.
 
+5. Fill out user registration form and click Submit
+
+  This will send a POST request to the /register endpoint.
+  
+  On success, it triggers downstream requests to user_service.
+
 4. Confirm results in:
 
   The UI (success or error message).
 
-  our terminal logs or Prometheus metrics.
+  Or on our terminal logs or Prometheus metrics.
+
+  
 
 📊 Dashboards
 
@@ -244,15 +257,25 @@ In Grafana:
 
     Add Prometheus as a data source (http://prometheus-operated.monitoring.svc:9090)
 
-    Import dashboards (or create your own)
+All microservices expose Prometheus-compatible metrics on /metrics
+
+Dashboards are configured in Grafana for:
+
+    Request volume
+
+    Response time
+
+    Error rate
+
+    Service health
+
+Horizontal Pod Autoscalers (HPAs) are deployed per microservice:
+
+    Automatically scale replicas based on CPU usage
+
+    Ensures services remain responsive under load
+
     
-    Grafana dashboards visualize key metrics like:
-
-    - App requests count
-
-    - Request duration
-
-    - Service health status
 
 🧰 Microservices Endpoints Summary
 
@@ -262,8 +285,6 @@ In Grafana:
 | billing\_service      | `8002`     | `31837`  | `/health`    | `/metrics` |
 | notification\_service | `8003`     | `30628`  | `/health`    | `/metrics` |
 | user\_service         | `8000`     | `32680`  | `/health`    | `/metrics` |
-
-
 
 
 ✅ Status
